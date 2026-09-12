@@ -1,0 +1,2484 @@
+<!doctype html>
+<html lang="ka">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>ლექცია 28–29 — HTTP, Fetch & Async JavaScript</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans+Georgian:wght@400;500;600;700&family=Noto+Serif+Georgian:wght@400;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --cream: #f4efe4;
+        --cream-soft: #faf7f0;
+        --ink: #2b201c;
+        --ink-soft: #6b5d54;
+        --burgundy: #6e1f2a;
+        --burgundy-dark: #591722;
+        --gold: #a9822f;
+        --line: #ddd3c2;
+        --code-bg: #211915;
+        --code-text: #f1e9df;
+        --good: #2e7d4f;
+        --bad: #b23b3b;
+        --warn: #9a6b18;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        margin: 0;
+        height: 100%;
+        background: #171310;
+        color: var(--ink);
+        font-family: "Noto Sans Georgian", Arial, sans-serif;
+      }
+      body {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        overflow: hidden;
+      }
+      h1,
+      h2,
+      h3 {
+        font-family: "Noto Serif Georgian", Georgia, serif;
+        color: var(--burgundy);
+        margin: 0;
+      }
+      code,
+      pre,
+      textarea,
+      .mono {
+        font-family: "SFMono-Regular", Consolas, "DejaVu Sans Mono", monospace;
+      }
+      #deck {
+        position: relative;
+        width: 1280px;
+        height: 720px;
+        flex-shrink: 0;
+        background: var(--cream-soft);
+        box-shadow: 0 20px 80px rgba(0, 0, 0, 0.5);
+        overflow: hidden;
+      }
+      #stage {
+        position: absolute;
+        inset: 0;
+        overflow: hidden;
+      }
+      .slide {
+        position: absolute;
+        inset: 0;
+        padding: 44px 72px;
+        display: none;
+        flex-direction: column;
+        justify-content: center;
+        background: var(--cream-soft);
+      }
+      .slide.active {
+        display: flex;
+      }
+      .slide .eyebrow {
+        font-family: Arial, sans-serif;
+        letter-spacing: 2.3px;
+        font-size: 12px;
+        color: var(--gold);
+        margin-bottom: 8px;
+        text-transform: uppercase;
+      }
+      .slide h2 {
+        font-size: 27px;
+        margin-bottom: 12px;
+      }
+      .slide p.lead {
+        font-size: 17px;
+        color: var(--ink-soft);
+        font-style: italic;
+      }
+      .title-slide {
+        align-items: center;
+        text-align: center;
+        background: var(--cream);
+      }
+      .title-slide .divider,
+      .divider {
+        width: 80px;
+        height: 3px;
+        background: var(--gold);
+        margin: 19px auto;
+      }
+      .section-break {
+        align-items: center;
+        text-align: center;
+        background: var(--burgundy);
+      }
+      .section-break h1 {
+        color: white;
+        font-size: 44px;
+      }
+      .section-break .eyebrow {
+        color: #e3c88e;
+      }
+      pre.code-block {
+        background: var(--code-bg);
+        color: var(--code-text);
+        padding: 13px 18px;
+        border-radius: 8px;
+        font-size: 13.6px;
+        line-height: 1.5;
+        margin: 8px 0;
+        white-space: pre-wrap;
+      }
+      pre.code-block.tiny {
+        font-size: 11.6px;
+        padding: 10px 14px;
+      }
+      .two-col {
+        display: flex;
+        gap: 18px;
+        margin-top: 7px;
+      }
+      .three-col {
+        display: flex;
+        gap: 18px;
+        margin-top: 6px;
+      }
+      .card {
+        flex: 1;
+        background: var(--cream);
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 15px 18px;
+      }
+      .card h3 {
+        font-size: 17px;
+        color: var(--burgundy);
+        margin-bottom: 5px;
+      }
+      .card p {
+        font-size: 13px;
+        color: var(--ink-soft);
+        margin: 0;
+      }
+      .card code.big {
+        display: block;
+        background: var(--code-bg);
+        color: var(--code-text);
+        padding: 6px 9px;
+        border-radius: 6px;
+        font-size: 12.3px;
+        margin-bottom: 7px;
+      }
+      .icon {
+        font: 700 12px Arial;
+        color: var(--gold);
+        margin-bottom: 4px;
+      }
+      table.slide-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 13.1px;
+        margin-top: 7px;
+        background: var(--cream-soft);
+      }
+      table.slide-table th {
+        background: var(--burgundy);
+        color: white;
+        text-align: left;
+        padding: 8px 11px;
+        font: 700 11px Arial;
+      }
+      table.slide-table td {
+        padding: 8px 11px;
+        border-bottom: 1px solid var(--line);
+      }
+      .key-statement {
+        font-family: "Noto Serif Georgian", serif;
+        font-size: 19px;
+        font-style: italic;
+        color: var(--burgundy);
+        text-align: center;
+        line-height: 1.45;
+        border-top: 2px solid var(--gold);
+        border-bottom: 2px solid var(--gold);
+        padding: 14px 25px;
+        margin-top: 9px;
+      }
+      .note-callout {
+        background: #fdf6e3;
+        border-left: 4px solid var(--gold);
+        padding: 9px 14px;
+        font-size: 13px;
+        margin-top: 8px;
+        color: var(--ink);
+      }
+      /* flow */
+      .flow {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        margin-top: 15px;
+      }
+      .flow-box {
+        flex: 1;
+        background: var(--cream);
+        border: 1px solid var(--line);
+        border-radius: 9px;
+        padding: 16px 12px;
+        text-align: center;
+        min-height: 102px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        gap: 4px;
+      }
+      .flow-box b {
+        font-size: 11px;
+        letter-spacing: 1px;
+        color: var(--burgundy);
+      }
+      .flow-box span {
+        font: 700 12px Arial;
+      }
+      .flow-box small {
+        font-size: 10.5px;
+        color: var(--ink-soft);
+      }
+      .arrow {
+        font-size: 24px;
+        color: var(--gold);
+      }
+      .return {
+        transform: translateY(-1px);
+      }
+      /* status/methods */
+      .status {
+        padding: 2px 7px;
+        border-radius: 999px;
+        font: 700 11px Arial;
+      }
+      .status.good {
+        background: #e9f5ee;
+        color: var(--good);
+      }
+      .status-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 10px;
+        margin-top: 10px;
+      }
+      .status-item {
+        background: var(--cream);
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 12px;
+        display: grid;
+        grid-template-columns: auto 1fr;
+        column-gap: 7px;
+        align-items: baseline;
+      }
+      .status-item b {
+        font: 700 23px Arial;
+      }
+      .status-item span {
+        font: 700 12px Arial;
+      }
+      .status-item small {
+        grid-column: 1/-1;
+        color: var(--ink-soft);
+        font-size: 11px;
+        margin-top: 4px;
+      }
+      .status-item.good b {
+        color: var(--good);
+      }
+      .status-item.warn b {
+        color: var(--warn);
+      }
+      .status-item.bad b {
+        color: var(--bad);
+      }
+      .method-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 13px;
+        margin-top: 12px;
+      }
+      .method-card {
+        background: var(--cream);
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 14px;
+      }
+      .method-card b {
+        display: block;
+        margin: 6px 0 2px;
+      }
+      .method-card p {
+        font-size: 12px;
+        color: var(--ink-soft);
+        margin: 0 0 7px;
+      }
+      .method-card code {
+        font-size: 11px;
+        background: var(--code-bg);
+        color: var(--code-text);
+        padding: 4px 6px;
+        border-radius: 5px;
+      }
+      .method {
+        display: inline-block;
+        border-radius: 999px;
+        padding: 4px 8px;
+        font: bold 11px Arial;
+        color: white;
+      }
+      .method.get {
+        background: #2e7d4f;
+      }
+      .method.post {
+        background: #3a6ea5;
+      }
+      .method.put {
+        background: #a9822f;
+      }
+      .method.delete {
+        background: #b23b3b;
+      }
+      /* network */
+      .network-mock {
+        background: #f2eee5;
+        border: 1px solid var(--line);
+        border-radius: 9px;
+        overflow: hidden;
+        margin-top: 9px;
+      }
+      .network-head,
+      .network-row,
+      .network-details {
+        display: grid;
+        grid-template-columns: 100px 1.8fr 110px 100px 100px;
+        gap: 0;
+        padding: 9px 11px;
+        font-size: 11px;
+      }
+      .network-head {
+        background: var(--burgundy);
+        color: white;
+        font: 700 10px Arial;
+      }
+      .network-row {
+        border-bottom: 1px solid var(--line);
+        align-items: center;
+      }
+      .network-details {
+        grid-template-columns: 1fr 1fr 1.2fr;
+        background: #faf7f0;
+        color: var(--ink-soft);
+        line-height: 1.5;
+      }
+      /* lab */
+      .lab {
+        display: flex;
+        gap: 15px;
+        margin-top: 8px;
+        flex: 1;
+        min-height: 0;
+      }
+      .lab-col {
+        display: flex;
+        flex-direction: column;
+        min-height: 0;
+      }
+      .lab-code {
+        flex: 0 0 48%;
+      }
+      .lab-preview {
+        flex: 1;
+      }
+      .lab-panel-label {
+        font: 10px Arial;
+        letter-spacing: 1.3px;
+        color: var(--ink-soft);
+        text-transform: uppercase;
+        margin-bottom: 4px;
+      }
+      .lab-editor {
+        width: 100%;
+        flex: 1;
+        min-height: 150px;
+        resize: none;
+        background: var(--code-bg);
+        color: var(--code-text);
+        border: none;
+        border-radius: 8px;
+        padding: 11px 13px;
+        font-size: 12.5px;
+        line-height: 1.48;
+        outline: none;
+      }
+      .lab-buttons {
+        display: flex;
+        gap: 8px;
+        margin-top: 7px;
+      }
+      .lab-btn {
+        font: 700 11.5px Arial;
+        border: none;
+        border-radius: 6px;
+        padding: 7px 14px;
+        cursor: pointer;
+      }
+      .lab-btn.run {
+        background: var(--burgundy);
+        color: white;
+      }
+      .lab-btn.reset {
+        background: var(--cream);
+        color: var(--ink-soft);
+        border: 1px solid var(--line);
+      }
+      .lab-console {
+        background: #efe9db;
+        border: 1px dashed var(--ink-soft);
+        border-radius: 6px;
+        padding: 8px 12px;
+        font:
+          11.5px "SFMono-Regular",
+          Consolas,
+          monospace;
+        margin-top: 7px;
+        height: 125px;
+        overflow: auto;
+        line-height: 1.45;
+      }
+      .lab-console-line {
+        padding: 1px 0;
+      }
+      .lab-console-error {
+        color: var(--bad);
+      }
+      .explain-box,
+      .dish-mini-list {
+        background: var(--cream);
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 14px;
+      }
+      .explain-box p {
+        font-size: 12.8px;
+        color: var(--ink-soft);
+      }
+      .dish-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 9px 4px;
+        border-bottom: 1px solid var(--line);
+        font-size: 12px;
+      }
+      .dish-row:last-child {
+        border-bottom: none;
+      }
+      /* promise */
+      .promise-life {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 24px;
+        margin: 16px 0;
+      }
+      .promise-node {
+        min-width: 200px;
+        background: var(--cream);
+        border: 2px solid var(--line);
+        border-radius: 12px;
+        padding: 18px;
+        text-align: center;
+      }
+      .promise-node b {
+        display: block;
+        font: 700 20px Arial;
+      }
+      .promise-node span {
+        font-size: 12px;
+        color: var(--ink-soft);
+      }
+      .promise-node.pending {
+        border-color: var(--gold);
+      }
+      .promise-node.fulfilled {
+        border-color: var(--good);
+      }
+      .promise-node.rejected {
+        border-color: var(--bad);
+        margin-top: 9px;
+      }
+      .promise-branch {
+        display: flex;
+        flex-direction: column;
+      }
+      .life-arrow {
+        font-size: 28px;
+        color: var(--gold);
+      }
+      .compare {
+        display: flex;
+        gap: 18px;
+        margin-top: 11px;
+      }
+      .compare-col {
+        flex: 1;
+        background: var(--cream);
+        border: 1px solid var(--line);
+        border-radius: 9px;
+        padding: 14px;
+      }
+      .compare-col h3 {
+        font-size: 17px;
+      }
+      .compare-col p {
+        font-size: 12px;
+        color: var(--ink-soft);
+      }
+      .timeline {
+        display: flex;
+        gap: 7px;
+        align-items: center;
+        flex-wrap: wrap;
+        margin: 10px 0;
+      }
+      .timeline span {
+        background: white;
+        border: 1px solid var(--line);
+        padding: 7px 9px;
+        border-radius: 6px;
+        font-size: 11px;
+      }
+      .timeline .highlight {
+        border-color: var(--good);
+        color: var(--good);
+        font-weight: bold;
+      }
+      .timeline .muted {
+        font-size: 10px;
+        color: var(--ink-soft);
+      }
+      /* pipeline */
+      .pipeline {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-top: 12px;
+      }
+      .pipe {
+        flex: 1;
+        background: var(--cream);
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 12px;
+      }
+      .pipe b {
+        display: inline-flex;
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        background: var(--burgundy);
+        color: white;
+        align-items: center;
+        justify-content: center;
+        font: 700 12px Arial;
+        margin-bottom: 6px;
+      }
+      .pipe code {
+        display: block;
+        font-size: 11.5px;
+        background: var(--code-bg);
+        color: var(--code-text);
+        padding: 6px;
+        border-radius: 5px;
+      }
+      .pipe span {
+        display: block;
+        font-size: 11px;
+        color: var(--ink-soft);
+        margin-top: 5px;
+      }
+      .pipe-arrow {
+        font-size: 26px;
+        color: var(--gold);
+      }
+      /* mapping */
+      .mapping {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-top: 7px;
+      }
+      .mapping .code-block {
+        flex: 1;
+      }
+      .map-arrow {
+        font-size: 26px;
+        color: var(--gold);
+      }
+      /* loading */
+      .loading-demo {
+        display: flex;
+        gap: 18px;
+        margin: 16px 0;
+      }
+      .loading-stage {
+        flex: 1;
+        background: var(--cream);
+        border: 1px solid var(--line);
+        border-radius: 9px;
+        min-height: 160px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 7px;
+        opacity: 0.55;
+      }
+      .loading-stage.done {
+        opacity: 1;
+        border-color: var(--good);
+      }
+      .loading-stage b {
+        font-size: 15px;
+      }
+      .loading-stage small {
+        font-size: 11px;
+        color: var(--ink-soft);
+      }
+      .spinner {
+        width: 28px;
+        height: 28px;
+        border: 4px solid #ded6c9;
+        border-top-color: var(--burgundy);
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+      }
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+      /* states */
+      .state-compare {
+        display: flex;
+        gap: 18px;
+        margin-top: 10px;
+      }
+      .state-box {
+        flex: 1;
+        border-radius: 9px;
+        padding: 14px;
+        border: 1px solid var(--line);
+        background: var(--cream);
+      }
+      .state-box h3 {
+        font-size: 18px;
+        margin-bottom: 9px;
+      }
+      .state-item {
+        background: white;
+        border: 1px solid var(--line);
+        padding: 7px 9px;
+        border-radius: 6px;
+        margin: 6px 0;
+        font: 11.5px Arial;
+      }
+      .state-box small {
+        color: var(--ink-soft);
+        font-size: 10.5px;
+      }
+      .state-box.server {
+        border-color: #6b8d74;
+      }
+      .state-box.client {
+        border-color: #8a7885;
+      }
+      /* json */
+      .json-compare {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-top: 12px;
+      }
+      .json-compare .card {
+        flex: 1;
+      }
+      .big-arrow {
+        font-size: 32px;
+        color: var(--gold);
+      }
+      /* tabs */
+      .tabs-demo {
+        display: flex;
+        align-items: center;
+        gap: 22px;
+        justify-content: center;
+        margin: 18px 0;
+      }
+      .fake-tab {
+        width: 310px;
+        background: var(--cream);
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        padding: 18px;
+        display: flex;
+        flex-direction: column;
+        gap: 7px;
+      }
+      .fake-tab span {
+        font-size: 12px;
+      }
+      .fake-tab strong {
+        font: 700 13px Arial;
+        color: var(--good);
+      }
+      .sync-arrow {
+        font-size: 30px;
+        color: var(--gold);
+      }
+      /* mistakes */
+      .mistakes {
+        display: grid;
+        grid-template-columns: 1.5fr 1fr;
+        gap: 6px 16px;
+        margin-top: 8px;
+      }
+      .mistake,
+      .fix {
+        background: var(--cream);
+        border-radius: 6px;
+        padding: 8px 11px;
+        font-size: 11.5px;
+        border: 1px solid var(--line);
+      }
+      .mistake b {
+        color: var(--burgundy);
+        margin-right: 8px;
+      }
+      .mistake code {
+        font-size: 11px;
+      }
+      .fix {
+        color: var(--good);
+        border-color: #c9dfd0;
+      }
+      /* architecture */
+      .architecture {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin: 14px 0;
+      }
+      .arch-box {
+        flex: 1;
+        border: 1px solid var(--line);
+        background: var(--cream);
+        border-radius: 8px;
+        padding: 14px;
+        text-align: center;
+      }
+      .arch-box b {
+        display: block;
+        color: var(--burgundy);
+        font-size: 15px;
+      }
+      .arch-box span {
+        font-size: 11px;
+        color: var(--ink-soft);
+      }
+      .arch-arrow {
+        font-size: 25px;
+        color: var(--gold);
+      }
+      /* full flow */
+      .full-flow {
+        display: grid;
+        grid-template-columns: repeat(11, 1fr);
+        align-items: center;
+        gap: 4px;
+        margin-top: 18px;
+      }
+      .full-flow div {
+        text-align: center;
+      }
+      .full-flow div:nth-child(odd) {
+        background: var(--cream);
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 10px 5px;
+        min-height: 74px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+      }
+      .full-flow div:nth-child(odd) b {
+        font-size: 11px;
+        margin-top: 4px;
+      }
+      .full-flow div:nth-child(odd) small {
+        font-size: 9.5px;
+        color: var(--ink-soft);
+        margin-top: 3px;
+      }
+      .full-flow div:nth-child(even) {
+        font-size: 21px;
+        color: var(--gold);
+      }
+      /* ai */
+      .ai-card {
+        border: 2px solid var(--burgundy);
+        background: #fbf3ef;
+        border-radius: 10px;
+        padding: 14px 18px;
+        margin-top: 7px;
+      }
+      .ai-card .ai-tag {
+        font: 700 12px Arial;
+        color: var(--burgundy);
+        margin-bottom: 6px;
+      }
+      .ai-card pre {
+        font-size: 11.4px;
+        line-height: 1.5;
+        margin: 0;
+        background: none;
+        color: var(--ink);
+        padding: 0;
+        white-space: pre-wrap;
+      }
+      .checklist {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 7px 16px;
+        margin-top: 10px;
+      }
+      .checklist div {
+        background: var(--cream);
+        border: 1px solid var(--line);
+        border-radius: 7px;
+        padding: 9px 12px;
+        font-size: 12px;
+      }
+      /* chrome */
+      #progress {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        height: 3px;
+        background: var(--gold);
+        width: 0;
+        transition: width 0.2s;
+        z-index: 20;
+      }
+      #slide-counter {
+        position: absolute;
+        bottom: 9px;
+        right: 16px;
+        font: 700 12px Arial;
+        color: var(--burgundy);
+        z-index: 20;
+        background: var(--cream);
+        padding: 3px 11px;
+        border-radius: 999px;
+        border: 1px solid var(--line);
+      }
+      .nav-arrow {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        border: 1px solid var(--line);
+        background: rgba(250, 247, 240, 0.92);
+        color: var(--burgundy);
+        font-size: 20px;
+        cursor: pointer;
+        z-index: 20;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
+      }
+      .nav-arrow:hover {
+        background: var(--burgundy);
+        color: white;
+      }
+      .nav-arrow:disabled {
+        opacity: 0.25;
+        cursor: default;
+      }
+      .nav-arrow:disabled:hover {
+        background: rgba(250, 247, 240, 0.92);
+        color: var(--burgundy);
+      }
+      #nav-prev {
+        left: 14px;
+      }
+      #nav-next {
+        right: 14px;
+      }
+      #hint-btn,
+      #overview-btn {
+        position: absolute;
+        bottom: 8px;
+        font: 11px Arial;
+        color: var(--ink-soft);
+        background: none;
+        border: none;
+        cursor: pointer;
+        z-index: 20;
+      }
+      #hint-btn {
+        left: 16px;
+      }
+      #overview-btn {
+        left: 74px;
+      }
+      #help-panel {
+        position: absolute;
+        bottom: 44px;
+        right: 16px;
+        background: var(--ink);
+        color: white;
+        border-radius: 8px;
+        padding: 12px 16px;
+        font: 11px Arial;
+        display: none;
+        z-index: 25;
+        line-height: 1.9;
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+      }
+      #help-panel.open {
+        display: block;
+      }
+      #help-panel kbd {
+        background: #444;
+        border-radius: 3px;
+        padding: 1px 6px;
+        margin-right: 6px;
+        font-family: monospace;
+      }
+      #overview {
+        position: absolute;
+        inset: 0;
+        background: rgba(23, 19, 16, 0.96);
+        display: none;
+        padding: 40px;
+        overflow-y: auto;
+        z-index: 30;
+      }
+      #overview.open {
+        display: block;
+      }
+      #overview-grid {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 14px;
+        max-width: 1150px;
+        margin: 0 auto;
+      }
+      .ov-card {
+        background: var(--cream-soft);
+        border-radius: 8px;
+        padding: 12px;
+        cursor: pointer;
+        border: 2px solid transparent;
+        font: 11px Arial;
+      }
+      .ov-card:hover {
+        border-color: var(--gold);
+      }
+      .ov-card .ov-num {
+        font-size: 10px;
+        color: var(--gold);
+        font-weight: bold;
+      }
+      .ov-card .ov-title {
+        font-size: 11.5px;
+        color: var(--ink);
+        margin-top: 4px;
+        line-height: 1.3;
+      }
+      #overview-title {
+        color: white;
+        font-family: "Noto Serif Georgian", serif;
+        font-size: 22px;
+        margin-bottom: 20px;
+        text-align: center;
+      }
+      @media (max-width: 1280px) {
+        body {
+          overflow: auto;
+        }
+        #deck {
+          transform: scale(calc(min(100vw / 1280, 100vh / 720)));
+          transform-origin: center center;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="deck">
+      <div id="stage">
+        <section
+          class="slide title-slide"
+          data-title="ლექცია 28–29 · HTTP, Fetch & Async JavaScript"
+        >
+          <div class="eyebrow">FRONT END DEVELOPMENT · LE BISTRO PROJECT</div>
+          <h1 style="font-size: 52px">ლექცია 28–29</h1>
+          <div class="divider"></div>
+          <p class="lead" style="font-size: 24px">
+            HTTP • Promises • Async/Await • Fetch • CRUD
+          </p>
+          <p class="lead" style="font-size: 14px; margin-top: 28px">
+            ისწავლე არა მხოლოდ სინტაქსი — გაიგე, რა ხდება მონაცემის გზაზე.
+          </p>
+        </section>
+        <section class="slide" data-title="დღევანდელი სურათი">
+          <div class="eyebrow">START HERE</div>
+          <h1 style="font-size: 32px; margin-bottom: 16px">
+            რას უნდა მივხვდეთ ლექციის ბოლოს?
+          </h1>
+          <div class="three-col">
+            <div class="card">
+              <div class="icon">01</div>
+              <h3>მოთხოვნა</h3>
+              <p>Frontend აგზავნის HTTP Request-ს სერვერთან.</p>
+            </div>
+            <div class="card">
+              <div class="icon">02</div>
+              <h3>ლოდინი</h3>
+              <p>fetch() მაშინვე არ გვაძლევს Array-ს — გვაძლევს Promise-ს.</p>
+            </div>
+            <div class="card">
+              <div class="icon">03</div>
+              <h3>შედეგი</h3>
+              <p>Response-ს ვაქცევთ JSON-ად, ვამაპავთ და UI-ში ვხატავთ.</p>
+            </div>
+          </div>
+          <div class="key-statement">
+            მთავარი გზა:
+            <strong>Intent → HTTP Request → Response → Data → UI</strong>
+          </div>
+        </section>
+        <section class="slide" data-title="Client → Server">
+          <div class="eyebrow">01 · HTTP PROTOCOL</div>
+          <h2>Client → Server — ვინ ვის ელაპარაკება?</h2>
+          <div class="flow">
+            <div class="flow-box client">
+              <b>CLIENT</b><span>Browser / Frontend</span
+              ><small>“მენიუ მაჩვენე”</small>
+            </div>
+            <div class="arrow">→</div>
+            <div class="flow-box request">
+              <b>HTTP REQUEST</b><span>GET /api/v1/learning/menu</span
+              ><small>Method + URL + Headers</small>
+            </div>
+            <div class="arrow">→</div>
+            <div class="flow-box server">
+              <b>SERVER</b><span>API / Database</span
+              ><small>ეძებს მონაცემს</small>
+            </div>
+            <div class="arrow return">←</div>
+            <div class="flow-box response">
+              <b>RESPONSE</b><span>200 OK</span><small>JSON Array</small>
+            </div>
+          </div>
+          <div class="note-callout">
+            <strong>წარმოიდგინე რესტორანი:</strong> Frontend არის მიმტანი, API —
+            სამზარეულოსთან კომუნიკაციის წესები, Response — შეკვეთის შედეგი.
+          </div>
+        </section>
+        <section class="slide" data-title="HTTP Request Anatomy">
+          <div class="eyebrow">HTTP REQUEST</div>
+          <h2>Request-ის 4 მთავარი ნაწილი</h2>
+          <div class="two-col">
+            <div class="card">
+              <h3>1. Method</h3>
+              <code class="big">GET</code>
+              <p>რა ტიპის მოქმედება გვინდა?</p>
+            </div>
+            <div class="card">
+              <h3>2. URL / Endpoint</h3>
+              <code class="big">/api/v1/learning/menu</code>
+              <p>სად ვაგზავნით მოთხოვნას?</p>
+            </div>
+          </div>
+          <div class="two-col">
+            <div class="card">
+              <h3>3. Headers</h3>
+              <code class="big">X-Session-Id: student_token_123</code>
+              <p>დამატებითი ინფორმაცია მოთხოვნის შესახებ.</p>
+            </div>
+            <div class="card">
+              <h3>4. Body</h3>
+              <code class="big">{ "dishId": 1, "quantity": 1 }</code>
+              <p>მონაცემი, რომელსაც POST/PUT-ში ვაგზავნით.</p>
+            </div>
+          </div>
+        </section>
+        <section class="slide" data-title="HTTP Response Anatomy">
+          <div class="eyebrow">HTTP RESPONSE</div>
+          <h2>Response-ის 3 მთავარი ნაწილი</h2>
+          <table class="slide-table">
+            <tr>
+              <th>ნაწილი</th>
+              <th>მაგალითი</th>
+              <th>რას გვეუბნება?</th>
+            </tr>
+            <tr>
+              <td>Status</td>
+              <td><span class="status good">200 OK</span></td>
+              <td>მოთხოვნა წარმატებით დამუშავდა.</td>
+            </tr>
+            <tr>
+              <td>Headers</td>
+              <td>Content-Type: application/json</td>
+              <td>პასუხის ფორმატი.</td>
+            </tr>
+            <tr>
+              <td>Body</td>
+              <td>[ { id: 1, name: "Pizza" } ]</td>
+              <td>რეალური მონაცემი.</td>
+            </tr>
+          </table>
+          <div class="note-callout">
+            ყურადღება:
+            <strong>Response Object ≠ JSON მონაცემი.</strong> Response ჯერ
+            “კონვერტია”; body-ის წაკითხვა ცალკე ნაბიჯია.
+          </div>
+        </section>
+        <section class="slide" data-title="HTTP Methods">
+          <div class="eyebrow">REST MENTAL MODEL</div>
+          <h2>GET, POST, PUT, DELETE — იფიქრე მოქმედებით</h2>
+          <div class="method-grid">
+            <div class="method-card">
+              <span class="method get">GET</span><b>წაკითხვა</b>
+              <p>“რა გვაქვს?”</p>
+              <code>/menu</code>
+            </div>
+            <div class="method-card">
+              <span class="method post">POST</span><b>შექმნა</b>
+              <p>“დაამატე”</p>
+              <code>/cart</code>
+            </div>
+            <div class="method-card">
+              <span class="method put">PUT</span><b>განახლება</b>
+              <p>“შეცვალე”</p>
+              <code>/cart/17</code>
+            </div>
+            <div class="method-card">
+              <span class="method delete">DELETE</span><b>წაშლა</b>
+              <p>“მოაშორე”</p>
+              <code>/cart/17</code>
+            </div>
+          </div>
+          <div class="key-statement">
+            URL გვეუბნება <strong>სად</strong>, Method —
+            <strong>რას ვაკეთებთ</strong>.
+          </div>
+        </section>
+        <section class="slide" data-title="Status Codes">
+          <div class="eyebrow">HTTP STATUS</div>
+          <h2>სტატუს კოდი — შედეგის მოკლე პასუხი</h2>
+          <div class="status-grid">
+            <div class="status-item good">
+              <b>200</b><span>OK</span><small>წაკითხვა/წარმატება</small>
+            </div>
+            <div class="status-item good">
+              <b>201</b><span>Created</span><small>ახალი რესურსი შეიქმნა</small>
+            </div>
+            <div class="status-item warn">
+              <b>400</b><span>Bad Request</span
+              ><small>მოთხოვნა არასწორია</small>
+            </div>
+            <div class="status-item warn">
+              <b>401</b><span>Unauthorized</span
+              ><small>საჭიროა ავტორიზაცია/იდენტიფიკაცია</small>
+            </div>
+            <div class="status-item warn">
+              <b>404</b><span>Not Found</span
+              ><small>რესურსი ვერ მოიძებნა</small>
+            </div>
+            <div class="status-item warn">
+              <b>409</b><span>Conflict</span><small>ბიზნეს-კონფლიქტი</small>
+            </div>
+            <div class="status-item bad">
+              <b>500</b><span>Internal Server Error</span
+              ><small>სერვერზე პრობლემა მოხდა</small>
+            </div>
+            <div class="status-item bad">
+              <b>503</b><span>Unavailable</span
+              ><small>სერვისი დროებით მიუწვდომელია</small>
+            </div>
+          </div>
+        </section>
+        <section class="slide" data-title="DevTools Network">
+          <div class="eyebrow">DEVTOOLS</div>
+          <h2>Network Tab — API-ს “შიგნიდან” ყურება</h2>
+          <div class="network-mock">
+            <div class="network-head">
+              <span>Method</span><span>Request</span><span>Status</span
+              ><span>Type</span><span>Time</span>
+            </div>
+            <div class="network-row">
+              <b>GET</b><span>/api/v1/learning/menu</span
+              ><span class="status good">200</span><span>fetch</span
+              ><span>1512 ms</span>
+            </div>
+            <div class="network-details">
+              <div><b>Request Headers</b><br />Accept: application/json</div>
+              <div>
+                <b>Response Headers</b><br />Content-Type: application/json
+              </div>
+              <div>
+                <b>Response</b><br />[ { id: 1, name: "Margherita Pizza" } ]
+              </div>
+            </div>
+          </div>
+          <div class="note-callout">
+            <strong>ლექტორის დემო:</strong> გახსენი DevTools → Network → დააჭირე
+            Reload → იპოვე fetch/XHR მოთხოვნა → ნახე Method, Status, Headers,
+            Response და Timing.
+          </div>
+        </section>
+        <section class="slide" data-title="Promise — რატომ არ არის Array?">
+          <div class="eyebrow">02 · PROMISES</div>
+          <h2>fetch() მაშინვე არ გაძლევს მონაცემს</h2>
+          <div class="lab" data-mode="console">
+            <div class="lab-col lab-code">
+              <div class="lab-panel-label">CODE — შეცვალე და გაუშვი</div>
+              <textarea class="lab-editor" spellcheck="false">
+const result = fetch("/api/v1/learning/menu");
+console.log(result);
+console.log("შემდეგი ხაზი მაინც შესრულდა");</textarea
+              >
+              <div class="lab-buttons">
+                <button class="lab-btn run">▶ Run</button
+                ><button class="lab-btn reset">↺ Reset</button>
+              </div>
+            </div>
+            <div class="lab-col lab-preview">
+              <div class="explain-box">
+                <b>რას უნდა ელოდო?</b>
+                <p>
+                  <code>fetch()</code> აბრუნებს <strong>Promise</strong>-ს —
+                  მომავალში მისაღები შედეგის “შეპირებას”.
+                </p>
+                <code class="big">Promise { &lt;pending&gt; }</code>
+              </div>
+              <div class="lab-console"></div>
+            </div>
+          </div>
+        </section>
+        <section class="slide" data-title="Promise Lifecycle">
+          <div class="eyebrow">PROMISE STATES</div>
+          <h2>Promise-ს სამი მდგომარეობა</h2>
+          <div class="promise-life">
+            <div class="promise-node pending">
+              <b>Pending</b><span>ჯერ ველოდებით</span>
+            </div>
+            <div class="life-arrow">→</div>
+            <div class="promise-branch">
+              <div class="promise-node fulfilled">
+                <b>Fulfilled</b><span>წარმატებული შედეგი</span>
+              </div>
+              <div class="promise-node rejected">
+                <b>Rejected</b><span>ქსელური შეცდომა / fail</span>
+              </div>
+            </div>
+          </div>
+          <button class="lab-btn run" id="promiseDemoBtn">
+            ▶ გაუშვი Promise სიმულაცია
+          </button>
+          <div class="console-out" id="promiseOut">
+            დააჭირე ღილაკს და ნახე მდგომარეობების მიმდევრობა…
+          </div>
+          <div class="key-statement">
+            Promise არ ნიშნავს “შეცდომას”. ის ნიშნავს:
+            <strong>შედეგი ჯერ ან გზაშია, ან უკვე დადგა.</strong>
+          </div>
+        </section>
+        <section class="slide" data-title="Event Loop — რატომ არ იყინება ბრაუზერი">
+          <div class="eyebrow">MENTAL MODEL</div>
+          <h2>Call Stack → Web API → Queue → Event Loop</h2>
+          <div class="architecture">
+            <div class="arch-box">
+              <b>Call Stack</b><span>სინქრონული კოდი სრულდება აქ, ერთი-ერთზე</span>
+            </div>
+            <div class="arch-arrow">→</div>
+            <div class="arch-box">
+              <b>Web API</b><span>fetch/setTimeout გადაეცემა ბრაუზერს, Stack თავისუფლდება</span>
+            </div>
+            <div class="arch-arrow">→</div>
+            <div class="arch-box">
+              <b>Callback Queue</b><span>პასუხი მზადაა — ელოდება რიგში</span>
+            </div>
+            <div class="arch-arrow">→</div>
+            <div class="arch-box">
+              <b>Event Loop</b><span>რიგიდან Stack-ზე გადააქვს, როცა Stack ცარიელია</span>
+            </div>
+          </div>
+          <div class="note-callout">
+            სწორედ ამიტომ ხედავთ სინქრონულ ხაზებს ჯერ — <code>fetch()</code>-ის
+            პასუხი ვერასდროს "გადაძვრება" წინ, სანამ Call Stack სავსეა.
+          </div>
+          <div class="key-statement">
+            Event Loop არ აჩქარებს ქსელს — ის მხოლოდ წყვეტს,
+            <strong>როდის</strong> გაუშვას უკვე მზა პასუხი.
+          </div>
+        </section>
+        <section class="slide" data-title="Sync vs Async">
+          <div class="eyebrow">EXECUTION MODEL</div>
+          <h2>Sync vs Async — რატომ არ იყინება ბრაუზერი?</h2>
+          <div class="compare">
+            <div class="compare-col bad-col">
+              <h3>სინქრონული</h3>
+              <div class="timeline">
+                <span>Task A</span><span>ელოდება</span><span>Task B</span
+                ><span>Task C</span>
+              </div>
+              <p>
+                ხანგრძლივი ოპერაცია იკავებს შესრულებას და შემდეგი კოდი ელოდება.
+              </p>
+            </div>
+            <div class="compare-col good-col">
+              <h3>ასინქრონული</h3>
+              <div class="timeline">
+                <span>fetch()</span><span class="muted">→ browser/Web API</span
+                ><span>Task B</span><span>Task C</span
+                ><span class="highlight">→ response → continuation</span>
+              </div>
+              <p>
+                ქსელური ოპერაციის ლოდინისას JavaScript-ს სხვა საქმეების
+                შესრულება შეუძლია.
+              </p>
+            </div>
+          </div>
+          <div class="note-callout">
+            მარტივი ფორმულა:
+            <strong
+              >await აჩერებს ფუნქციის გაგრძელებას, მაგრამ არ “აყინავს” მთელ
+              ბრაუზერს.</strong
+            >
+          </div>
+        </section>
+        <section class="slide" data-title="Sync vs Async — თვითონ სცადე">
+          <div class="eyebrow">LIVE LAB</div>
+          <h2>დაწერის რიგი ≠ შესრულების რიგი</h2>
+          <div class="lab" data-mode="console">
+            <div class="lab-col lab-code">
+              <div class="lab-panel-label">CODE — შეცვალე და გაუშვი</div>
+              <textarea class="lab-editor" spellcheck="false">
+console.log("1. დაწყება");
+
+setTimeout(() => {
+  console.log("2. დაგვიანებული პასუხი (fetch-ის მსგავსად)");
+}, 1500);
+
+console.log("3. ბოლო სინქრონული ხაზი");</textarea>
+              <div class="lab-buttons">
+                <button class="lab-btn run">▶ Run</button
+                ><button class="lab-btn reset">↺ Reset</button>
+              </div>
+            </div>
+            <div class="lab-col lab-preview">
+              <div class="explain-box">
+                <b>რას უნდა ელოდო?</b>
+                <p>
+                  <code>setTimeout</code> შუაშია დაწერილი, მაგრამ Console-ში
+                  <strong>ბოლოს</strong> გამოჩნდება — ზუსტად ისე, როგორც
+                  <code>fetch()</code>-ის შემთხვევაში ხდება.
+                </p>
+              </div>
+              <div class="lab-console"></div>
+            </div>
+          </div>
+        </section>
+        <section class="slide" data-title="async / await">
+          <div class="eyebrow">ASYNC / AWAIT</div>
+          <h2>იგივე ასინქრონული ოპერაცია — უფრო წაკითხვადი კოდით</h2>
+          <pre class="code-block">
+async function loadMenu() {
+  const response = await fetch("https://api.srms.ge/api/v1/learning/menu");
+
+  console.log("Response received:", response);
+}</pre
+          >
+          <div class="two-col">
+            <div class="card">
+              <h3>async</h3>
+              <p>ფუნქცია აუცილებლად აბრუნებს Promise-ს.</p>
+            </div>
+            <div class="card">
+              <h3>await</h3>
+              <p>
+                ამ ფუნქციის შიგნით ველოდებით Promise-ის შედეგს, სანამ შემდეგ
+                ხაზზე გადავალთ.
+              </p>
+            </div>
+          </div>
+          <div class="key-statement">
+            მიზანი არ არის “ასინქრონული კოდის სინქრონულად ქცევა”; მიზანია
+            <strong>ასინქრონული პროცესის მარტივად წაკითხვა</strong>.
+          </div>
+        </section>
+        <section class="slide" data-title="async/await — თვითონ სცადე">
+          <div class="eyebrow">LIVE LAB</div>
+          <h2>loadMenu() — ცოცხლად, საკუთარი თვალით</h2>
+          <div class="lab" data-mode="console">
+            <div class="lab-col lab-code">
+              <div class="lab-panel-label">CODE — შეცვალე და გაუშვი</div>
+              <textarea class="lab-editor" spellcheck="false">
+function fakeFetch() {
+  return new Promise(resolve => {
+    setTimeout(() => resolve(["Margherita Pizza", "Cheeseburger"]), 1200);
+  });
+}
+
+async function loadMenu() {
+  console.log("Fetching…");
+  const dishes = await fakeFetch();
+  console.log("Response received:", dishes);
+}
+
+loadMenu();
+console.log("ეს ხაზი loadMenu()-ს არ ელოდება!");</textarea>
+              <div class="lab-buttons">
+                <button class="lab-btn run">▶ Run</button
+                ><button class="lab-btn reset">↺ Reset</button>
+              </div>
+            </div>
+            <div class="lab-col lab-preview">
+              <div class="explain-box">
+                <b>დააკვირდი თანმიმდევრობას</b>
+                <p>
+                  "Fetching…" და ბოლო ხაზი გამოჩნდება <strong>await</strong>-ის
+                  წინ; "Response received" — მხოლოდ 1.2 წამის შემდეგ.
+                </p>
+              </div>
+              <div class="lab-console"></div>
+            </div>
+          </div>
+        </section>
+        <section class="slide" data-title="try / catch + response.ok">
+          <div class="eyebrow">ERROR HANDLING</div>
+          <h2>მოთხოვნა შეიძლება ჩავარდეს — ყოველთვის მოამზადე გზა</h2>
+          <pre class="code-block">
+async function loadMenu() {
+  try {
+    const response = await fetch(url);
+
+    if (!response.ok) {
+      throw new Error(`HTTP Error: ${response.status}`);
+    }
+
+    const dishes = await response.json();
+    console.log(dishes);
+  } catch (error) {
+    console.error("Menu loading failed:", error.message);
+  }
+}</pre
+          >
+          <div class="two-col">
+            <div class="card">
+              <h3>fetch-ის network failure</h3>
+              <p>მაგალითად, სერვერთან კავშირის პრობლემა → Promise reject.</p>
+            </div>
+            <div class="card">
+              <h3>404 / 500</h3>
+              <p>
+                HTTP პასუხი შეიძლება მაინც მივიღოთ. ამიტომ ხშირად ამოწმებენ
+                <code>response.ok</code>-ს.
+              </p>
+            </div>
+          </div>
+        </section>
+        <section class="slide" data-title="try/catch — თვითონ სცადე">
+          <div class="eyebrow">LIVE LAB</div>
+          <h2>შეცვალე shouldFail და ნახე განსხვავება</h2>
+          <div class="lab" data-mode="console">
+            <div class="lab-col lab-code">
+              <div class="lab-panel-label">CODE — true/false-ზე შეცვლა</div>
+              <textarea class="lab-editor" spellcheck="false">
+const shouldFail = false; // შეცვალე true-ზე და თავიდან გაუშვი
+
+function fakeFetch(fail) {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      if (fail) reject(new Error("500 Server Error"));
+      else resolve(["Margherita Pizza", "Cheeseburger"]);
+    }, 1000);
+  });
+}
+
+async function loadMenu() {
+  try {
+    const dishes = await fakeFetch(shouldFail);
+    console.log("✅ ჩაიტვირთა:", dishes);
+  } catch (error) {
+    console.error("⚠️ ვერ ჩაიტვირთა:", error.message);
+  }
+}
+
+loadMenu();</textarea>
+              <div class="lab-buttons">
+                <button class="lab-btn run">▶ Run</button
+                ><button class="lab-btn reset">↺ Reset</button>
+              </div>
+            </div>
+            <div class="lab-col lab-preview">
+              <div class="explain-box">
+                <b>ორივე გზა სცადე</b>
+                <p>
+                  <code>shouldFail = false</code> → ჩაიტვირთა.
+                  <code>shouldFail = true</code> → catch იჭერს შეცდომას და
+                  აპლიკაცია მაინც "ცოცხალია", console.error-ის მიუხედავად.
+                </p>
+              </div>
+              <div class="lab-console"></div>
+            </div>
+          </div>
+        </section>
+        <section class="slide" data-title="AI Prompt — HTTP & Async">
+          <div class="eyebrow">🤖 USE AI</div>
+          <h2>Prompt #1 — HTTP + Promise + async/await</h2>
+          <div class="ai-card">
+            <div class="ai-tag">COPY & PASTE</div>
+            <pre>
+Act as a beginner-friendly JavaScript and web architecture mentor.
+Explain this flow step by step using a restaurant app example:
+
+GET /api/v1/learning/menu
+Status: 200 OK
+Content-Type: application/json
+
+I need you to explain:
+1. Client, Server, Request, Endpoint, Response and Headers;
+2. why fetch(url) returns a Promise;
+3. pending, fulfilled and rejected;
+4. the difference between Response and response.json();
+5. why async/await does not freeze the browser.
+
+Use simple language, tiny JavaScript examples, and one analogy.</pre
+            >
+          </div>
+        </section>
+        <section class="slide section-break" data-title="Fetch API">
+          <div class="eyebrow">03 · FETCH API & DATA</div>
+          <h1>ახლა Promise-ს რეალურ მონაცემამდე მივიყვანთ.</h1>
+          <p class="lead" style="color: #f4e8dc; max-width: 800px">
+            Response → JSON → DTO → UI
+          </p>
+        </section>
+        <section class="slide" data-title="fetch — 2 ეტაპი">
+          <div class="eyebrow">FETCH MENTAL MODEL</div>
+          <h2>fetch → Response → json() → მონაცემი</h2>
+          <div class="pipeline">
+            <div class="pipe">
+              <b>1</b><code>await fetch(url)</code><span>Response Object</span>
+            </div>
+            <div class="pipe-arrow">→</div>
+            <div class="pipe">
+              <b>2</b><code>await response.json()</code
+              ><span>რეალური JS მონაცემი</span>
+            </div>
+            <div class="pipe-arrow">→</div>
+            <div class="pipe">
+              <b>3</b><code>renderMenu(dishes)</code><span>UI</span>
+            </div>
+          </div>
+          <pre class="code-block">
+const response = await fetch(url);
+const rawDishes = await response.json();
+renderMenu(rawDishes);</pre
+          >
+          <div class="note-callout">
+            ყველაზე გავრცელებული შეცდომა:
+            <code>const dishes = await fetch(url)</code> — აქ
+            <code>dishes</code> ჯერ <strong>Response</strong>-ია და არა Array.
+          </div>
+        </section>
+        <section class="slide" data-title="Loading State">
+          <div class="eyebrow">USER EXPERIENCE</div>
+          <h2>1.5 წამი რეალური UX-ისთვის შესანიშნავი გაკვეთილია</h2>
+          <div class="loading-demo">
+            <div class="loading-stage" id="loadStage">
+              <div class="spinner"></div>
+              <b>იტვირთება მენიუ…</b><small>სერვერის პასუხს ველოდებით</small>
+            </div>
+            <div class="loading-stage done" id="loadedStage">
+              <b>✓ მენიუ ჩაიტვირთა</b
+              ><small>ახლა შეგვიძლია cards-ის დახატვა</small>
+            </div>
+          </div>
+          <button class="lab-btn run" id="loadingDemoBtn">▶ სიმულაცია</button>
+          <pre class="code-block tiny">
+let isLoading = true;
+// fetch...
+// response arrived
+isLoading = false;</pre
+          >
+        </section>
+        <section class="slide" data-title="AI Prompt — Fetch Debugging">
+          <div class="eyebrow">🤖 USE AI</div>
+          <h2>Prompt #2 — ჩემი Fetch კოდი რატომ არ მუშაობს?</h2>
+          <div class="ai-card">
+            <div class="ai-tag">COPY & PASTE</div>
+            <pre>
+Act as a frontend debugging mentor.
+Review the code below without rewriting everything immediately.
+
+My goal: load restaurant menu data with fetch() and render it.
+
+[PASTE MY CODE HERE]
+
+Check specifically:
+- am I handling the Response object correctly?
+- did I call response.json()?
+- should I check response.ok?
+- do I have a loading state?
+- where should try/catch be used?
+- what exact line is causing the bug?
+
+First explain the bug in beginner-friendly Georgian.
+Then show the smallest possible fix.
+Then explain why the fix works.</pre
+            >
+          </div>
+        </section>
+        <section class="slide" data-title="DTO Mapping">
+          <div class="eyebrow">DATA MAPPING</div>
+          <h2>რატომ ვქმნით mapDishDto()-ს?</h2>
+          <p class="lead">
+            სერვერის მონაცემი შეიძლება UI-ს იდეალურ ფორმატში არ იყოს.
+          </p>
+          <div class="mapping">
+            <pre class="code-block">
+// Server DTO
+{
+  "id": 1,
+  "name": "Margherita Pizza",
+  "price": "15.5",
+  "category": "pizza",
+  "available": 1
+}</pre
+            >
+            <div class="map-arrow">→</div>
+            <pre class="code-block">
+// Frontend Model
+{
+  id: 1,
+  name: "Margherita Pizza",
+  price: 15.5,
+  category: "pizza",
+  available: true
+}</pre
+            >
+          </div>
+          <pre class="code-block tiny">
+function mapDishDto(dto) {
+  return {
+    id: dto.id,
+    name: dto.name,
+    price: Number(dto.price),
+    category: dto.category,
+    available: Boolean(dto.available)
+  };
+}</pre
+          >
+          <div class="note-callout">
+            Mapping არის კონტრაქტის “ადაპტერი”: UI იღებს იმ ფორმას, რომელიც მას
+            სჭირდება.
+          </div>
+          <div class="note-callout">
+            <strong>ყურადღება ტიპებზე:</strong> სერვერიდან მოსული
+            <code>"false"</code> ან <code>"0"</code> სტრიქონები JavaScript-ში
+            <strong>truthy</strong>-ა — ცარიელი სტრიქონი არაა! სწორედ ამიტომ
+            <code>Boolean(dto.available)</code> საკმარისი არაა, თუ
+            <code>dto.available</code> უკვე სტრიქონია და არა 0/1 რიცხვი.
+          </div>
+        </section>
+        <section class="slide" data-title="DTO Mapping — თვითონ სცადე">
+          <div class="eyebrow">LIVE LAB</div>
+          <h2>"false" (სტრიქონი) ≠ false (ბულეანი)</h2>
+          <div class="lab" data-mode="console">
+            <div class="lab-col lab-code">
+              <div class="lab-panel-label">CODE</div>
+              <textarea class="lab-editor" spellcheck="false">
+const raw = { id: 2, name: "Cheeseburger", price: "12", available: "false" };
+
+console.log("RAW available:", raw.available, typeof raw.available);
+console.log("if (raw.available) →", raw.available ? "TRUE ⚠️" : "FALSE");
+
+function mapDishDto(dto) {
+  return {
+    ...dto,
+    price: Number(dto.price),
+    available: dto.available === "true"
+  };
+}
+
+const mapped = mapDishDto(raw);
+console.log("MAPPED available:", mapped.available, typeof mapped.available);
+console.log("if (mapped.available) →", mapped.available ? "TRUE" : "FALSE ✓");</textarea>
+              <div class="lab-buttons">
+                <button class="lab-btn run">▶ Run</button
+                ><button class="lab-btn reset">↺ Reset</button>
+              </div>
+            </div>
+            <div class="lab-col lab-preview">
+              <div class="explain-box">
+                <b>ხაფანგი</b>
+                <p>
+                  სერვერიდან მოსული სტრიქონი <code>"false"</code> JavaScript-ში
+                  <strong>truthy</strong>-ა — ცარიელი სტრიქონი არაა! Mapping-ის
+                  გარეშე <code>if (dto.available)</code> ყოველთვის true იქნება.
+                </p>
+              </div>
+              <div class="lab-console"></div>
+            </div>
+          </div>
+        </section>
+        <section class="slide" data-title="AI Prompt — Data Mapping">
+          <div class="eyebrow">🤖 USE AI</div>
+          <h2>Prompt #4 — DTO → UI Model</h2>
+          <div class="ai-card">
+            <div class="ai-tag">COPY & PASTE</div>
+            <pre>
+Act as a frontend TypeScript/JavaScript mentor.
+I receive this server DTO:
+
+[PASTE JSON HERE]
+
+Create a small mapDishDto(dto) function for my UI.
+Rules:
+- keep only fields the UI needs;
+- convert numeric strings to Number when necessary;
+- convert boolean-like values carefully;
+- explain every transformation;
+- do not add fields that are not present in the input.
+
+Then show one example of rendering the mapped object into a product card.</pre
+            >
+          </div>
+        </section>
+        <section class="slide" data-title="GET Menu პრაქტიკაში">
+          <div class="eyebrow">LIVE LAB</div>
+          <h2>GET /menu — მონაცემის წამოღება და დახატვა</h2>
+          <div class="lab" data-mode="console">
+            <div class="lab-col lab-code">
+              <div class="lab-panel-label">CODE</div>
+              <textarea class="lab-editor" spellcheck="false">
+const rawDishes = [
+  { id: 1, name: "Margherita Pizza", price: 15.5 },
+  { id: 2, name: "Classic Cheeseburger", price: 12 }
+];
+
+const dishes = rawDishes.map(dish => ({
+  ...dish,
+  price: Number(dish.price)
+}));
+
+console.log("Loaded:", dishes);
+console.log("First dish:", dishes[0].name);</textarea
+              >
+              <div class="lab-buttons">
+                <button class="lab-btn run">▶ Run</button
+                ><button class="lab-btn reset">↺ Reset</button>
+              </div>
+            </div>
+            <div class="lab-col lab-preview">
+              <div class="lab-panel-label">OUTPUT</div>
+              <div class="dish-mini-list">
+                <div class="dish-row">
+                  <span>🍕 Margherita Pizza</span><b>₾15.50</b>
+                </div>
+                <div class="dish-row">
+                  <span>🍔 Classic Cheeseburger</span><b>₾12.00</b>
+                </div>
+              </div>
+              <div class="lab-console"></div>
+            </div>
+          </div>
+        </section>
+        <section class="slide" data-title="Server State vs Client State">
+          <div class="eyebrow">STATE</div>
+          <h2>რა უნდა იყოს სერვერზე და რა — UI-ში?</h2>
+          <div class="state-compare">
+            <div class="state-box server">
+              <h3>Server State</h3>
+              <div class="state-item">Cart items</div>
+              <div class="state-item">Menu data</div>
+              <div class="state-item">Quantity</div>
+              <small>სერვერი არის Source of Truth</small>
+            </div>
+            <div class="state-box client">
+              <h3>Client State</h3>
+              <div class="state-item">isCartOpen</div>
+              <div class="state-item">selectedCategory</div>
+              <div class="state-item">isLoading</div>
+              <small>UI-ის მიმდინარე მდგომარეობა</small>
+            </div>
+          </div>
+          <div class="key-statement">
+            ორი კომპონენტი შეიძლება სხვადასხვა Tab-ში იყოს — მაგრამ ერთი Server
+            State ნახონ.
+          </div>
+        </section>
+        <section class="slide" data-title="CRUD Map">
+          <div class="eyebrow">04 · SERVER CART CRUD</div>
+          <h2>ერთი რესურსი, ოთხი მოქმედება</h2>
+          <table class="slide-table">
+            <tr>
+              <th>Intent</th>
+              <th>Method</th>
+              <th>Endpoint</th>
+              <th>Expected</th>
+            </tr>
+            <tr>
+              <td>კალათის ნახვა</td>
+              <td><b>GET</b></td>
+              <td>/api/v1/learning/cart</td>
+              <td>200 + array</td>
+            </tr>
+            <tr>
+              <td>კერძის დამატება</td>
+              <td><b>POST</b></td>
+              <td>/api/v1/learning/cart</td>
+              <td>201 Created</td>
+            </tr>
+            <tr>
+              <td>რაოდენობის შეცვლა</td>
+              <td><b>PUT</b></td>
+              <td>/api/v1/learning/cart/{id}</td>
+              <td>200 OK</td>
+            </tr>
+            <tr>
+              <td>პოზიციის წაშლა</td>
+              <td><b>DELETE</b></td>
+              <td>/api/v1/learning/cart/{id}</td>
+              <td>200 / 204</td>
+            </tr>
+          </table>
+          <div class="note-callout">
+            ბიზნეს აზრი: POST = “შეიტანე კალათაში”, PUT = “შეცვალე რაოდენობა”,
+            DELETE = “ამოიღე”.
+          </div>
+        </section>
+        <section class="slide" data-title="GET Cart">
+          <div class="eyebrow">CRUD · READ</div>
+          <h2>GET — სერვერული კალათის წაკითხვა</h2>
+          <pre class="code-block">
+const SESSION_HEADER = {
+  "X-Session-Id": "student_token_123"
+};
+
+async function getCart() {
+  const response = await fetch(
+    "/api/v1/learning/cart",
+    { headers: SESSION_HEADER }
+  );
+
+  if (!response.ok) throw new Error(`HTTP ${response.status}`);
+  return response.json();
+}</pre
+          >
+          <div class="two-col">
+            <div class="card">
+              <h3>რატომ Header?</h3>
+              <p>
+                სერვერს უნდა სცოდნოდა, რომელი სატესტო session-ის კალათას
+                კითხულობ.
+              </p>
+            </div>
+            <div class="card">
+              <h3>რა ბრუნდება?</h3>
+              <p>Cart items-ის Array, რომლის render-იც Frontend-ს შეუძლია.</p>
+            </div>
+          </div>
+        </section>
+        <section class="slide" data-title="POST Add to Cart">
+          <div class="eyebrow">CRUD · CREATE</div>
+          <h2>POST — ობიექტის გაგზავნა სერვერზე</h2>
+          <pre class="code-block">
+async function addToCart(dishId, quantity = 1) {
+  const response = await fetch("/api/v1/learning/cart", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "X-Session-Id": "student_token_123"
+    },
+    body: JSON.stringify({ dishId, quantity })
+  });
+
+  if (!response.ok) throw new Error(`HTTP ${response.status}`);
+  return response.json();
+}</pre
+          >
+          <div class="two-col">
+            <div class="card">
+              <h3>body</h3>
+              <p>
+                JavaScript Object-ს პირდაპირ არ ვაგზავნით. ჯერ JSON string უნდა
+                გახდეს.
+              </p>
+            </div>
+            <div class="card">
+              <h3>Content-Type</h3>
+              <p>ვატყობინებთ სერვერს, რომ body-ის ფორმატი JSON არის.</p>
+            </div>
+          </div>
+        </section>
+        <section class="slide" data-title="JSON.stringify">
+          <div class="eyebrow">POST / PUT — IMPORTANT</div>
+          <h2>Object ≠ JSON String</h2>
+          <div class="json-compare">
+            <div class="card">
+              <h3>JS Object</h3>
+              <pre class="code-block tiny">{ dishId: 1, quantity: 1 }</pre>
+              <p>ჩვენს JavaScript-ში არსებული მონაცემი.</p>
+            </div>
+            <div class="big-arrow">→</div>
+            <div class="card">
+              <h3>JSON String</h3>
+              <pre class="code-block tiny">'{"dishId":1,"quantity":1}'</pre>
+              <p>HTTP body-ში გასაგზავნი ტექსტური ფორმა.</p>
+            </div>
+          </div>
+          <div class="note-callout">
+            ამ გარდაქმნას აკეთებს <strong>JSON.stringify()</strong>. უკუღმა,
+            Response-ის JSON-ის წაკითხვას ასრულებს
+            <strong>response.json()</strong>.
+          </div>
+        </section>
+        <section class="slide" data-title="JSON.stringify — თვითონ სცადე">
+          <div class="eyebrow">LIVE LAB</div>
+          <h2>Object → String → Object, ცოცხლად</h2>
+          <div class="lab" data-mode="console">
+            <div class="lab-col lab-code">
+              <div class="lab-panel-label">CODE</div>
+              <textarea class="lab-editor" spellcheck="false">
+const cartItem = { dishId: 1, quantity: 2 };
+console.log("Object:", cartItem, typeof cartItem);
+
+const json = JSON.stringify(cartItem);
+console.log("JSON string:", json, typeof json);
+
+const parsed = JSON.parse(json);
+console.log("დაბრუნებული Object:", parsed, typeof parsed);</textarea>
+              <div class="lab-buttons">
+                <button class="lab-btn run">▶ Run</button
+                ><button class="lab-btn reset">↺ Reset</button>
+              </div>
+            </div>
+            <div class="lab-col lab-preview">
+              <div class="explain-box">
+                <b>ორივე მიმართულება</b>
+                <p>
+                  <code>JSON.stringify()</code> — გაგზავნამდე.
+                  <code>response.json()</code> შიგნით სწორედ ასეთი
+                  <code>JSON.parse()</code>-ის მსგავსი გარდაქმნა ხდება.
+                </p>
+              </div>
+              <div class="lab-console"></div>
+            </div>
+          </div>
+        </section>
+        <section class="slide" data-title="PUT Update Quantity">
+          <div class="eyebrow">CRUD · UPDATE</div>
+          <h2>PUT — არსებული Cart Item-ის განახლება</h2>
+          <pre class="code-block">
+async function updateQuantity(itemId, quantity) {
+  const response = await fetch(
+    `/api/v1/learning/cart/${itemId}`,
+    {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        "X-Session-Id": "student_token_123"
+      },
+      body: JSON.stringify({ quantity })
+    }
+  );
+
+  if (!response.ok) throw new Error(`HTTP ${response.status}`);
+  return response.json();
+}</pre
+          >
+          <div class="note-callout">
+            <strong>ძალიან მნიშვნელოვანი:</strong> <code>itemId</code> არის
+            კალათის პოზიციის ID — ეს შეიძლება საერთოდ არ იყოს იგივე, რაც კერძის
+            <code>dishId</code>.
+          </div>
+        </section>
+        <section class="slide" data-title="DELETE Remove Item">
+          <div class="eyebrow">CRUD · DELETE</div>
+          <h2>DELETE — პოზიციის ამოღება</h2>
+          <pre class="code-block">
+async function removeFromCart(itemId) {
+  const response = await fetch(
+    `/api/v1/learning/cart/${itemId}`,
+    {
+      method: "DELETE",
+      headers: {
+        "X-Session-Id": "student_token_123"
+      }
+    }
+  );
+
+  if (!response.ok) throw new Error(`HTTP ${response.status}`);
+}</pre
+          >
+          <div class="two-col">
+            <div class="card">
+              <h3>რატომ არა body?</h3>
+              <p>
+                რესურსის მისამართში უკვე ვამბობთ, რომელი cart item უნდა
+                წაიშალოს.
+              </p>
+            </div>
+            <div class="card">
+              <h3>204 No Content</h3>
+              <p>
+                წარმატებული ოპერაცია შეიძლება პასუხის body-ის გარეშე დასრულდეს.
+              </p>
+            </div>
+          </div>
+        </section>
+        <section class="slide" data-title="Headers — ერთი კალათის კონტრაქტი">
+          <div class="eyebrow">REQUEST HEADERS</div>
+          <h2>ორი Header, ორი სხვადასხვა მიზანი</h2>
+          <table class="slide-table">
+            <tr>
+              <th>Header</th>
+              <th>რას ეუბნება სერვერს?</th>
+              <th>სად გვჭირდება?</th>
+            </tr>
+            <tr>
+              <td><code>X-Session-Id</code></td>
+              <td>რომელ session-ს ეკუთვნის კალათა?</td>
+              <td>Cart CRUD</td>
+            </tr>
+            <tr>
+              <td><code>Content-Type: application/json</code></td>
+              <td>Body JSON ფორმატშია.</td>
+              <td>POST / PUT</td>
+            </tr>
+          </table>
+          <pre class="code-block tiny">
+const SESSION_HEADER = { "X-Session-Id": "student_token_123" };
+const JSON_HEADER = {
+  "Content-Type": "application/json",
+  ...SESSION_HEADER
+};</pre
+          >
+          <div class="note-callout">
+            Header-ების გამოტოვებამ შეიძლება გამოიწვიოს
+            <strong>400 Bad Request</strong> ან
+            <strong>401 Unauthorized</strong>.
+          </div>
+        </section>
+        <section class="slide" data-title="AI Prompt — CRUD Contract">
+          <div class="eyebrow">🤖 USE AI</div>
+          <h2>Prompt #3 — API Contract-ის გადამოწმება</h2>
+          <div class="ai-card">
+            <div class="ai-tag">COPY & PASTE</div>
+            <pre>
+Act as a frontend API reviewer.
+Review my server-cart integration against this contract:
+
+GET    /api/v1/learning/cart
+POST   /api/v1/learning/cart
+PUT    /api/v1/learning/cart/{id}
+DELETE /api/v1/learning/cart/{id}
+X-Session-Id: student_token_123
+POST/PUT body: JSON.stringify(...)
+Content-Type: application/json
+
+For each function I provide:
+1. identify method, URL, headers and body;
+2. tell me the expected response status;
+3. find missing or incorrect parts;
+4. distinguish dishId from cart item id;
+5. do not invent backend behavior that is not in the contract.
+
+Return the review as a clear table.</pre
+            >
+          </div>
+        </section>
+        <section class="slide" data-title="Multi-tab Experiment">
+          <div class="eyebrow">SERVER STATE EXPERIMENT</div>
+          <h2>ორი Tab — ერთი Session — ერთი კალათა</h2>
+          <div class="tabs-demo">
+            <div class="fake-tab">
+              <b>Tab A</b><span>+ Margherita Pizza</span
+              ><strong>Cart: 1 item</strong>
+            </div>
+            <div class="sync-arrow">↔</div>
+            <div class="fake-tab">
+              <b>Tab B</b><span>Refresh</span><strong>Cart: 1 item</strong>
+            </div>
+          </div>
+          <div class="key-statement">
+            LocalStorage მხოლოდ ამ ბრაუზერის client-side state-ს ეკუთვნის;
+            Server State API-სთან არის დაკავშირებული.
+          </div>
+          <div class="note-callout">
+            სილაბუსის ექსპერიმენტი: ერთი და იმავე
+            <code>student_token_123</code>-ით ორ Tab-ში მუშაობა და მეორე Tab-ში
+            refresh-ის შემდეგ იგივე სერვერული კალათის დანახვა.
+          </div>
+        </section>
+        <section class="slide" data-title="Common Mistakes">
+          <div class="eyebrow">GET STUCK · DEBUGGING</div>
+          <h2>4 შეცდომა, რომელსაც თითქმის ყველა უშვებს</h2>
+          <p class="lead" style="font-size: 13.5px">
+            ოთხივე შეცდომას ერთი მიზეზი აქვს: <code>fetch()</code> მონაცემს
+            ერთბაშად კი არ გვაძლევს, არამედ ეტაპებად — და თითოეული ეტაპი
+            ცალკე ასინქრონული ნაბიჯია, რომლის გამოტოვებაც შეცდომას ბადებს.
+          </p>
+          <div class="mistakes">
+            <div class="mistake">
+              <b>01</b><code>await fetch(url)</code> → “აი Array”
+            </div>
+            <div class="fix">✓ არა — ჯერ Response Object-ია.</div>
+            <div class="mistake">
+              <b>02</b><code>fetch(url)</code> → JSON პირდაპირ
+            </div>
+            <div class="fix">✓ არა — <code>await response.json()</code>.</div>
+            <div class="mistake"><b>03</b><code>body: dishObject</code></div>
+            <div class="fix">
+              ✓ <code>body: JSON.stringify(dishObject)</code>
+            </div>
+            <div class="mistake"><b>04</b><code>PUT /cart/{dishId}</code></div>
+            <div class="fix">
+              ✓ PUT/DELETE-სთვის სწორი <strong>cart item id</strong> გამოიყენე.
+            </div>
+          </div>
+        </section>
+        <section class="slide" data-title="Common Mistakes — თვითონ სცადე">
+          <div class="eyebrow">LIVE LAB</div>
+          <h2>ერთი დავიწყებული await — და აი შედეგი</h2>
+          <div class="lab" data-mode="console">
+            <div class="lab-col lab-code">
+              <div class="lab-panel-label">CODE</div>
+              <textarea class="lab-editor" spellcheck="false">
+function fakeResponse() {
+  return {
+    ok: true,
+    json: () => Promise.resolve(["Margherita Pizza", "Cheeseburger"])
+  };
+}
+
+async function wrong() {
+  const response = fakeResponse();
+  const dishes = response.json(); // await დაგვავიწყდა!
+  console.log("WRONG:", String(dishes));
+}
+
+async function correct() {
+  const response = fakeResponse();
+  const dishes = await response.json();
+  console.log("CORRECT:", dishes);
+}
+
+wrong();
+correct();</textarea>
+              <div class="lab-buttons">
+                <button class="lab-btn run">▶ Run</button
+                ><button class="lab-btn reset">↺ Reset</button>
+              </div>
+            </div>
+            <div class="lab-col lab-preview">
+              <div class="explain-box">
+                <b>შეადარე ორი ხაზი</b>
+                <p>
+                  <code>WRONG</code> ბეჭდავს <code>[object Promise]</code>-ს;
+                  <code>CORRECT</code> — რეალურ სიას. სხვაობა ერთადერთი
+                  სიტყვაა: <code>await</code>.
+                </p>
+              </div>
+              <div class="lab-console"></div>
+            </div>
+          </div>
+        </section>
+        <section class="slide" data-title="API Service Layer">
+          <div class="eyebrow">ARCHITECTURE</div>
+          <h2>DOM Handler-მა არ უნდა იცოდეს HTTP-ის ყველა დეტალი</h2>
+          <div class="architecture">
+            <div class="arch-box ui">
+              <b>UI / Event</b><span>click → addToCart()</span>
+            </div>
+            <div class="arch-arrow">→</div>
+            <div class="arch-box api">
+              <b>API Service</b><span>fetch + headers + JSON</span>
+            </div>
+            <div class="arch-arrow">→</div>
+            <div class="arch-box server">
+              <b>Server</b><span>REST Endpoint</span>
+            </div>
+          </div>
+          <pre class="code-block tiny">
+// cart-api.js
+export async function addToCart(dishId, quantity = 1) {
+  // HTTP logic lives here
+}
+
+// menu-render.js
+button.addEventListener("click", () => addToCart(1, 1));</pre
+          >
+          <div class="note-callout">
+            ეს გამიჯვნა მომავალში გვიმარტივებს ტესტირებას, შეცვლას და
+            Angular/React-ის მსგავს არქიტექტურებზე გადასვლას.
+          </div>
+        </section>
+        <section class="slide" data-title="Architecture at a Glance">
+          <div class="eyebrow">FINAL MENTAL MODEL</div>
+          <h2>სრული ნაკადი ერთ სურათში</h2>
+          <div class="full-flow">
+            <div>👤<b>User Intent</b><small>“კერძი დაამატე”</small></div>
+            <div>↓</div>
+            <div>🧩<b>Event Handler</b><small>addToCart()</small></div>
+            <div>↓</div>
+            <div>🌐<b>Fetch API</b><small>POST /cart</small></div>
+            <div>↓</div>
+            <div>🖥️<b>Server</b><small>validate + save</small></div>
+            <div>↓</div>
+            <div>📦<b>Response</b><small>201 Created</small></div>
+            <div>↓</div>
+            <div>🎨<b>UI Update</b><small>render cart</small></div>
+          </div>
+          <div class="key-statement">
+            კარგი Frontend კოდი არა მხოლოდ “მუშაობს” — მან იცის
+            <strong
+              >სად არის მონაცემი, ვინ არის პასუხისმგებელი და რა მდგომარეობაშია
+              პროცესი.</strong
+            >
+          </div>
+        </section>
+        <section class="slide title-slide" data-title="საკლასო პრაქტიკა">
+          <div class="eyebrow">BUILD · PRACTICE</div>
+          <h1 style="font-size: 40px">საკლასო პრაქტიკა</h1>
+          <div class="divider"></div>
+          <p class="lead">
+            დაწერე <strong>getMenu()</strong>, შემდეგ
+            <strong>addToCart()</strong>, შემდეგ render-ის ნაკადი.
+          </p>
+          <p class="lead" style="font-size: 13px; margin-top: 24px">
+            სწორი თანმიმდევრობა: Network → Promise → Response → JSON → Model →
+            UI
+          </p>
+        </section>
+        <section class="slide" data-title="Practice Checklist">
+          <div class="eyebrow">CHECK YOURSELF</div>
+          <h2>კოდის ჩაბარებამდე საკუთარ თავს ჰკითხე</h2>
+          <div class="checklist">
+            <div>□ ვიცი, რა არის Client და Server?</div>
+            <div>□ ვიცი, რას ნიშნავს GET / POST / PUT / DELETE?</div>
+            <div>□ მესმის რატომ არის fetch() Promise?</div>
+            <div>□ ვიცი Pending / Fulfilled / Rejected?</div>
+            <div>
+              □ ვხვდები Response-სა და JSON მონაცემს შორის განსხვავებას?
+            </div>
+            <div>□ POST / PUT-ში ვიყენებ JSON.stringify()-ს?</div>
+            <div>□ ვაგზავნი სწორ X-Session-Id Header-ს?</div>
+            <div>□ არ მერევა dishId და cart item id?</div>
+            <div>□ API logic გამოყოფილი მაქვს UI handler-ისგან?</div>
+          </div>
+        </section>
+        <section class="slide section-break" data-title="ლექციის დასასრული">
+          <div class="eyebrow">END OF LECTURES 28–29</div>
+          <h1>HTTP უკვე მხოლოდ URL აღარ არის.</h1>
+          <p class="lead" style="color: #f4e8dc; max-width: 820px">
+            ახლა შეგიძლია მონაცემის სრული გზა დაინახო — მომხმარებლის
+            მოქმედებიდან სერვერამდე და უკან UI-მდე.
+          </p>
+          <div class="divider"></div>
+          <p class="lead" style="color: #f4e8dc">Questions?</p>
+        </section>
+      </div>
+      <div id="progress"></div>
+      <div id="slide-counter"></div>
+      <button id="nav-prev" class="nav-arrow" aria-label="წინა">←</button
+      ><button id="nav-next" class="nav-arrow" aria-label="შემდეგი">→</button>
+      <button id="hint-btn">? shortcuts</button
+      ><button id="overview-btn">⊞ overview</button>
+      <div id="help-panel">
+        <div><kbd>→</kbd>/<kbd>Space</kbd> შემდეგი</div>
+        <div><kbd>←</kbd> წინა</div>
+        <div><kbd>Home</kbd>/<kbd>End</kbd> პირველი/ბოლო</div>
+        <div><kbd>O</kbd> overview</div>
+        <div><kbd>?</kbd> shortcuts</div>
+      </div>
+      <div id="overview">
+        <div id="overview-title">ყველა სლაიდი</div>
+        <div id="overview-grid"></div>
+      </div>
+    </div>
+    <script>
+      (function () {
+        "use strict";
+        const slides = [...document.querySelectorAll("#stage .slide")];
+        const total = slides.length;
+        let current = 0;
+        const progress = document.getElementById("progress"),
+          counter = document.getElementById("slide-counter"),
+          overview = document.getElementById("overview"),
+          overviewGrid = document.getElementById("overview-grid"),
+          help = document.getElementById("help-panel");
+        const prevBtn = document.getElementById("nav-prev"),
+          nextBtn = document.getElementById("nav-next");
+        function clamp(n) {
+          return Math.max(0, Math.min(total - 1, n));
+        }
+        function render() {
+          slides.forEach((s, i) => s.classList.toggle("active", i === current));
+          progress.style.width = ((current + 1) / total) * 100 + "%";
+          counter.textContent = current + 1 + " / " + total;
+          prevBtn.disabled = current === 0;
+          nextBtn.disabled = current === total - 1;
+          history.replaceState?.(null, "", "#" + (current + 1));
+        }
+        function goTo(n) {
+          current = clamp(n);
+          render();
+        }
+        function next() {
+          goTo(current + 1);
+        }
+        function prev() {
+          goTo(current - 1);
+        }
+        prevBtn.addEventListener("click", prev);
+        nextBtn.addEventListener("click", next);
+        const hash = parseInt(location.hash.replace("#", ""), 10);
+        if (!Number.isNaN(hash) && hash >= 1 && hash <= total)
+          current = hash - 1;
+        render();
+        document.addEventListener("keydown", (e) => {
+          if (overview.classList.contains("open")) {
+            if (e.key === "Escape" || e.key.toLowerCase() === "o")
+              overview.classList.remove("open");
+            return;
+          }
+          const tag = document.activeElement?.tagName || "";
+          if (tag === "TEXTAREA" || tag === "INPUT") {
+            if (e.key === "Escape") document.activeElement.blur();
+            return;
+          }
+          if (e.key === "ArrowRight" || e.key === " ") {
+            next();
+            e.preventDefault();
+          } else if (e.key === "ArrowLeft") {
+            prev();
+            e.preventDefault();
+          } else if (e.key === "Home") {
+            goTo(0);
+            e.preventDefault();
+          } else if (e.key === "End") {
+            goTo(total - 1);
+            e.preventDefault();
+          } else if (e.key.toLowerCase() === "o") {
+            toggleOverview();
+          } else if (e.key === "?") {
+            help.classList.toggle("open");
+          }
+        });
+        function toggleOverview() {
+          if (!overview.classList.contains("open")) {
+            overviewGrid.innerHTML = "";
+            slides.forEach((s, i) => {
+              const c = document.createElement("div");
+              c.className = "ov-card";
+              c.innerHTML = `<div class="ov-num">${i + 1}</div><div class="ov-title">${s.dataset.title || ""}</div>`;
+              c.onclick = () => {
+                goTo(i);
+                overview.classList.remove("open");
+              };
+              overviewGrid.appendChild(c);
+            });
+          }
+          overview.classList.toggle("open");
+        }
+        document.getElementById("overview-btn").onclick = toggleOverview;
+        document.getElementById("hint-btn").onclick = () =>
+          help.classList.toggle("open");
+
+        document.querySelectorAll(".lab").forEach((lab) => {
+          const editor = lab.querySelector(".lab-editor"),
+            consoleEl = lab.querySelector(".lab-console"),
+            run = lab.querySelector(".lab-btn.run"),
+            reset = lab.querySelector(".lab-btn.reset");
+          const initial = editor?.value || "";
+          const log = (msg, error = false) => {
+            const line = document.createElement("div");
+            line.className =
+              "lab-console-line" + (error ? " lab-console-error" : "");
+            line.textContent = msg;
+            consoleEl.appendChild(line);
+            consoleEl.scrollTop = consoleEl.scrollHeight;
+          };
+          const fmt = (v) =>
+            v === null
+              ? "null"
+              : v === undefined
+                ? "undefined"
+                : typeof v === "object"
+                  ? JSON.stringify(v)
+                  : String(v);
+          function execute() {
+            consoleEl.innerHTML = "";
+            try {
+              const fake = { log: (...a) => log(a.map(fmt).join(" ")) };
+              new Function("console", editor.value)(fake);
+              log("✓ შესრულდა შეცდომის გარეშე");
+            } catch (err) {
+              log("⚠ " + err.message, true);
+            }
+          }
+          run?.addEventListener("click", execute);
+          reset?.addEventListener("click", () => {
+            editor.value = initial;
+            consoleEl.innerHTML = "";
+          });
+        });
+
+        const promiseBtn = document.getElementById("promiseDemoBtn"),
+          promiseOut = document.getElementById("promiseOut");
+        promiseBtn?.addEventListener("click", () => {
+          promiseOut.textContent = "1) Pending → მოთხოვნა დაიწყო…";
+          setTimeout(
+            () =>
+              (promiseOut.textContent =
+                "2) Fulfilled → სერვერმა წარმატებული პასუხი დააბრუნა ✅"),
+            900,
+          );
+        });
+        const loadBtn = document.getElementById("loadingDemoBtn");
+        loadBtn?.addEventListener("click", () => {
+          const a = document.getElementById("loadStage"),
+            b = document.getElementById("loadedStage");
+          a.style.opacity = "1";
+          b.style.opacity = ".35";
+          setTimeout(() => {
+            a.style.opacity = ".35";
+            b.style.opacity = "1";
+          }, 1500);
+        });
+      })();
+    </script>
+  </body>
+</html>
