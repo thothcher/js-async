@@ -4,6 +4,75 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>ლექცია 28–29 — HTTP, Fetch & Async JavaScript</title>
+    <meta
+      name="description"
+      content="ინტერაქტიური ლექცია HTTP-ის, Promise-ების, async/await-ის, Fetch API-ის და CRUD-ის შესახებ — ცოცხალი JavaScript კოდის ლაბორატორიებით."
+    />
+    <meta
+      name="keywords"
+      content="HTTP, Fetch API, async/await, Promise, JavaScript, CRUD, REST API, Event Loop, JSON, ლექცია, ჯავასკრიპტი"
+    />
+    <meta name="author" content="thothcher" />
+    <meta name="robots" content="index, follow" />
+    <meta name="theme-color" content="#6e1f2a" />
+    <link rel="canonical" href="https://thothcher.github.io/js-async/" />
+    <link
+      rel="icon"
+      href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='18' fill='%236e1f2a'/><text x='50' y='66' font-size='46' font-family='Arial' font-weight='700' text-anchor='middle' fill='%23f4efe4'>JS</text></svg>"
+    />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Le Bistro — Front End Development" />
+    <meta
+      property="og:title"
+      content="ლექცია 28–29 — HTTP, Fetch & Async JavaScript"
+    />
+    <meta
+      property="og:description"
+      content="HTTP • Promises • Async/Await • Fetch • CRUD — ინტერაქტიური სლაიდები ცოცხალი კოდის ლაბორატორიებით."
+    />
+    <meta property="og:url" content="https://thothcher.github.io/js-async/" />
+    <meta property="og:locale" content="ka_GE" />
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary" />
+    <meta
+      name="twitter:title"
+      content="ლექცია 28–29 — HTTP, Fetch & Async JavaScript"
+    />
+    <meta
+      name="twitter:description"
+      content="HTTP • Promises • Async/Await • Fetch • CRUD — ინტერაქტიური სლაიდები ცოცხალი კოდის ლაბორატორიებით."
+    />
+
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "LearningResource",
+        "name": "ლექცია 28–29 — HTTP, Fetch & Async JavaScript",
+        "description": "ინტერაქტიური ლექცია HTTP-ის, Promise-ების, async/await-ის, Fetch API-ის და CRUD-ის შესახებ — ცოცხალი JavaScript კოდის ლაბორატორიებით.",
+        "url": "https://thothcher.github.io/js-async/",
+        "inLanguage": "ka",
+        "learningResourceType": "Presentation",
+        "educationalLevel": "Beginner",
+        "isAccessibleForFree": true,
+        "teaches": [
+          "HTTP",
+          "Promises",
+          "async/await",
+          "Fetch API",
+          "Event Loop",
+          "JSON",
+          "REST CRUD"
+        ],
+        "author": {
+          "@type": "Person",
+          "name": "thothcher",
+          "url": "https://github.com/thothcher"
+        }
+      }
+    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -1030,7 +1099,7 @@
     </style>
   </head>
   <body>
-    <div id="deck">
+    <main id="deck">
       <div id="stage">
         <section
           class="slide title-slide"
@@ -2327,7 +2396,7 @@ button.addEventListener("click", () => addToCart(1, 1));</pre
         <div id="overview-title">ყველა სლაიდი</div>
         <div id="overview-grid"></div>
       </div>
-    </div>
+    </main>
     <script>
       (function () {
         "use strict";
